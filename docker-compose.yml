@@ -1,0 +1,18 @@
+services:
+  fastapi:
+    build:
+      context: .
+    container_name: fastapi
+    ports:
+      - "8000:80"
+    restart: unless-stopped
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      REGION_NAME: ${REGION_NAME}
+      AWS_RDS_USERNAME: ${AWS_RDS_USERNAME}
+      AWS_RDS_PASSWORD: ${AWS_RDS_PASSWORD}
+      AWS_RDS_HOST: ${AWS_RDS_HOST}
+      AWS_RDS_PORT: ${AWS_RDS_PORT}
+      AWS_RDS_DATABASE: ${AWS_RDS_DATABASE}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
