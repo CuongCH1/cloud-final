@@ -39,25 +39,31 @@ jobs:
     needs: lint
 
     steps:
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USERNAME }}
-          key: ${{ secrets.AWS_EC2_SSH_KEY }}
-          script: |
-            cd cloud-final
+      - name: Setup SSH key and connect
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.AWS_EC2_SSH_KEY }}
+          SSH_HOST: ${{ secrets.AWS_EC2_HOST }}
+          SSH_USER: ${{ secrets.AWS_EC2_USERNAME }}
+        run: |
+          mkdir -p ~/.ssh
+          
+          printf "%s" "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-            echo "Pulling latest code..."
-            git pull origin main
+          ssh -i ~/.ssh/id_rsa "$SSH_USER@$SSH_HOST" 
 
-            echo "Rebuilding image..."
-            docker build -t cloud-final-fastapi:latest .
+          cd cloud-final
 
-            echo "Rebuilding container..."
-            docker compose down
-            docker container prune -f
-            docker compose up -d
+          echo "Pulling latest code..."
+          git pull origin main
 
-            echo "Cleaning unused image..."
-            docker image prune -f
+          echo "Rebuilding image..."
+          docker build -t cloud-final-fastapi:latest .
+
+          echo "Rebuilding container..."
+          docker compose down
+          docker container prune -f
+          docker compose up -d
+
+          echo "Cleaning unused image..."
+          docker image prune -f
