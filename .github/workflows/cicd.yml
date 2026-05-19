@@ -52,20 +52,22 @@ jobs:
 
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
-          ssh -i ~/.ssh/id_rsa "$SSH_USER@$SSH_HOST" 
+          ssh -i ~/.ssh/id_rsa "$SSH_USER@$SSH_HOST" << 'EOF'
+            set -e
 
-          cd cloud-final
+            cd cloud-final
 
-          echo "Pulling latest code..."
-          git pull origin main
+            echo "Pulling latest code..."
+            git pull origin main
 
-          echo "Rebuilding image..."
-          docker build -t cloud-final-fastapi:latest .
+            echo "Rebuilding image..."
+            docker build -t cloud-final-fastapi:latest .
 
-          echo "Rebuilding container..."
-          docker compose down
-          docker container prune -f
-          docker compose up -d
+            echo "Rebuilding container..."
+            docker compose down
+            docker container prune -f
+            docker compose up -d
 
-          echo "Cleaning unused image..."
-          docker image prune -f
+            echo "Cleaning unused images..."
+            docker image prune -f
+          EOF
